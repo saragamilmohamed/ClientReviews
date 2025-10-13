@@ -10,11 +10,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ========== CONFIGURATION ==========
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-ACCOUNT_SID = os.getenv("ACCOUNT_SID")
-AUTH_TOKEN = os.getenv("AUTH_TOKEN")
-FROM_WHATSAPP = os.getenv("FROM_WHATSAPP")
-TO_WHATSAPP = os.getenv("TO_WHATSAPP")
+import streamlit as st
+
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+ACCOUNT_SID = st.secrets["ACCOUNT_SID"]
+AUTH_TOKEN = st.secrets["AUTH_TOKEN"]
+FROM_WHATSAPP = st.secrets["FROM_WHATSAPP"]
+TO_WHATSAPP = st.secrets["TO_WHATSAPP"]
+NGROK_AUTHTOKEN = st.secrets["NGROK_AUTHTOKEN"]
+
 
 # ========== GOOGLE SHEETS ==========
 SCOPE = [
@@ -94,3 +98,4 @@ if submitted:
 
         else:
             st.success("✅ Review saved successfully!")
+
