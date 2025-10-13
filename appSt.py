@@ -23,9 +23,8 @@ SCOPE = [
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
 ]
-creds = Credentials.from_service_account_file(
-    "genial-wonder-473209-g7-2d1fe8f7d713.json", scopes=SCOPE
-)
+creds = Credentials.from_service_account_info(st.secrets["google_service_account"], scopes=SCOPE)
+client = gspread.authorize(creds)
 client_gs = gspread.authorize(creds)
 sheet = client_gs.open("Client Reviews").sheet1
 
@@ -94,3 +93,4 @@ if submitted:
 
         else:
             st.success("✅ Review saved successfully!")
+
