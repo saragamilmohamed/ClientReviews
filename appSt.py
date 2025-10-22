@@ -5,6 +5,7 @@ import streamlit as st
 from google.oauth2.service_account import Credentials
 from twilio.rest import Client
 from dotenv import load_dotenv
+import datetime
 
 # Load environment variables
 load_dotenv()
@@ -64,6 +65,9 @@ Review: {review}
     return sentiment
 
 # ========== STREAMLIT APP ==========
+
+
+
 st.set_page_config(page_title="Client Review Analyzer", page_icon="💬")
 
 st.title("💬 Client Review Sentiment Analyzer")
@@ -71,32 +75,39 @@ st.write("Analyze customer feedback and send alerts for negative reviews.")
 
 with st.form("review_form"):
     name = st.text_input("Client Name")
-    product = st.text_input("Product Name")
+    product = st.text_input("Product Name (enter one only — e.g., 'Laptop')")
     review = st.text_area("Write the client review")
     submitted = st.form_submit_button("Analyze Review")
 
 if submitted:
-    if not review:
-        st.error("⚠️ Please enter a review.")
+    if not review or not product or not name:
+        st.error("⚠️ Please fill in all fields.")
+    elif "," in product or " " in product.strip():
+        st.error("🚫 Please enter only one product name (no commas or multiple words).")
     else:
         sentiment = analyze_sentiment(review)
         st.write(f"**Detected Sentiment:** {sentiment}")
 
-        # Save to Google Sheets
-        sheet.append_row([name, product, review, sentiment])
+        # Generate timestamp
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Save to Google Sheets (Timestamp, Name, Product, Review, Sentiment)
+        sheet.append_row([timestamp, name, product, review, sentiment])
 
         # If negative, send WhatsApp alert
         if "Negative" in sentiment:
-            message_body = f"⚠️ Negative Review Alert!\n\nProduct: {product}\nClient: {name}\nReview: {review}"
+            message_body = (
+                f"⚠️ Negative Review Alert!\n\n"
+                f"🕒 Time: {timestamp}\n"
+                f"📦 Product: {product}\n"
+                f"👤 Client: {name}\n"
+                f"💬 Review: {review}"
+            )
             client_twilio.messages.create(
                 from_=FROM_WHATSAPP,
                 to=TO_WHATSAPP,
                 body=message_body
             )
             st.warning("🚨 Negative review detected — WhatsApp alert sent!")
-
         else:
             st.success("✅ Review saved successfully!")
-
-
-
